@@ -1,0 +1,5 @@
+{
+  "name": "Secure Local Python AI Dashboard",
+  "description": "A modern AI tools dashboard built as a Python desktop application using a PySimpleGUI layout. The Dashboard is for project and task management, workflow automation, and building AI tools for specific work tasks and developing specific coding tasks with trainable AI models Locally and Securely",
+  "requestFramePermissions": []
+}
