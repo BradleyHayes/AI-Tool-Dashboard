@@ -30,7 +30,7 @@ def get_layout(colors):
          sg.Button('Send', key='-SEND-CHAT-', button_color=('white', colors['primary']), bind_return_key=True)]
     ]
 
-    right_sidebar = prompt_builder_module.get_layout(colors, is_sidebar=True)
+    right_sidebar = prompt_builder_module.get_layout(colors, is_sidebar=True, key_prefix='-AI-')
 
     layout = [
         [sg.Column(left_column, background_color=colors['dashboard_bg'], expand_x=True, expand_y=True, pad=(10, 10)),
@@ -45,9 +45,9 @@ def handle_events(event, values, window):
         window['-AI-SIDEBAR-'].update(visible=not is_visible)
 
     # Delegate to prompt builder module
-    if prompt_builder_module.handle_events(event, values, window):
-        # If True, it means 'Send to AI' was clicked
-        builder_text = values['-PROMPT-BUILDER-']
+    if prompt_builder_module.handle_events(event, values, window, key_prefix='-AI-'):
+        # If True, it means 'Send to AI Assistant' was clicked
+        builder_text = values['-AI-PROMPT-BUILDER-']
         window['-CHAT-INPUT-'].update(builder_text)
         window.write_event_value('-SEND-CHAT-', None)
 

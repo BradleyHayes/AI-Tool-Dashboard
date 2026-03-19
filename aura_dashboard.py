@@ -37,7 +37,7 @@ def create_main_layout():
     content = [
         [sg.Column(create_dashboard_layout(), key='-COL-DASHBOARD-', background_color=COLORS['dashboard_bg'], visible=True, expand_x=True, expand_y=True),
          sg.Column(ai_module.get_layout(COLORS), key='-COL-AI-', background_color=COLORS['dashboard_bg'], visible=False, expand_x=True, expand_y=True),
-         sg.Column(prompt_builder_module.get_layout(COLORS, is_sidebar=False), key='-COL-PROMPT-', background_color=COLORS['dashboard_bg'], visible=False, expand_x=True, expand_y=True),
+         sg.Column(prompt_builder_module.get_layout(COLORS, is_sidebar=False, key_prefix='-DASH-'), key='-COL-PROMPT-', background_color=COLORS['dashboard_bg'], visible=False, expand_x=True, expand_y=True),
          sg.Column(task_module.get_layout(COLORS), key='-COL-TASKS-', background_color=COLORS['dashboard_bg'], visible=False, expand_x=True, expand_y=True),
          sg.Column(project_module.get_layout(COLORS), key='-COL-PROJECTS-', background_color=COLORS['dashboard_bg'], visible=False, expand_x=True, expand_y=True)]
     ]
@@ -92,11 +92,17 @@ def main():
             
         # Handle module specific events
         ai_module.handle_events(event, values, window)
-        prompt_builder_module.handle_events(event, values, window)
+        prompt_builder_module.handle_events(event, values, window, key_prefix='-DASH-')
         
+        # Sync prompt builders
+        if event == '-AI-PROMPT-BUILDER-':
+            window['-DASH-PROMPT-BUILDER-'].update(values['-AI-PROMPT-BUILDER-'])
+        elif event == '-DASH-PROMPT-BUILDER-':
+            window['-AI-PROMPT-BUILDER-'].update(values['-DASH-PROMPT-BUILDER-'])
+            
         # Special case: Link 'Send to AI Assistant' from Prompt module to AI module
-        if event == '-USE-PROMPT-' and current_col == '-COL-PROMPT-':
-            builder_text = values['-PROMPT-BUILDER-']
+        if event == '-DASH-USE-PROMPT-' and current_col == '-COL-PROMPT-':
+            builder_text = values['-DASH-PROMPT-BUILDER-']
             # Switch to AI tab
             window[current_col].update(visible=False)
             window['-COL-AI-'].update(visible=True)

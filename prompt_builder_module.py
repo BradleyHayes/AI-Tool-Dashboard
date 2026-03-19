@@ -27,7 +27,7 @@ def save_history(history):
     except:
         pass
 
-def get_layout(colors, is_sidebar=True):
+def get_layout(colors, is_sidebar=True, key_prefix=''):
     templates = [
         "--- Basic ---",
         "Summarize this text:",
@@ -66,75 +66,75 @@ def get_layout(colors, is_sidebar=True):
                  font=('Inter', 18 if not is_sidebar else 14, 'bold'), 
                  background_color=colors['bg_light'] if is_sidebar else colors['dashboard_bg'])],
         [sg.Text('History:', background_color=colors['bg_light'] if is_sidebar else colors['dashboard_bg'])],
-        [sg.Combo(history_names, key='-HISTORY-COMBO-', size=(20 if is_sidebar else 40, 1), enable_events=True), 
-         sg.Button('Load', key='-LOAD-HISTORY-', size=(5, 1)),
-         sg.Button('X', key='-DELETE-HISTORY-', size=(2, 1), button_color=('white', '#ef4444'))],
+        [sg.Combo(history_names, key=f'{key_prefix}-HISTORY-COMBO-', size=(20 if is_sidebar else 40, 1), enable_events=True), 
+         sg.Button('Load', key=f'{key_prefix}-LOAD-HISTORY-', size=(5, 1)),
+         sg.Button('X', key=f'{key_prefix}-DELETE-HISTORY-', size=(2, 1), button_color=('white', '#ef4444'))],
         [sg.Text('Templates:', background_color=colors['bg_light'] if is_sidebar else colors['dashboard_bg'])],
-        [sg.Listbox(values=templates, size=size_listbox, key='-TEMPLATE-LIST-', enable_events=True)],
+        [sg.Listbox(values=templates, size=size_listbox, key=f'{key_prefix}-TEMPLATE-LIST-', enable_events=True)],
         [sg.Text('Builder:', background_color=colors['bg_light'] if is_sidebar else colors['dashboard_bg'])],
-        [sg.Multiline(default_text=saved_prompt, size=size_multiline, key='-PROMPT-BUILDER-', enable_events=True, expand_x=True, expand_y=True)],
-        [sg.Button('Save Draft', key='-SAVE-PROMPT-', size=(12, 1)), 
-         sg.Button('Add to History', key='-ADD-HISTORY-', size=(15, 1))],
-        [sg.Button('Send to AI Assistant', key='-USE-PROMPT-', size=(30 if is_sidebar else 40, 1), button_color=('white', colors['accent']))]
+        [sg.Multiline(default_text=saved_prompt, size=size_multiline, key=f'{key_prefix}-PROMPT-BUILDER-', enable_events=True, expand_x=True, expand_y=True)],
+        [sg.Button('Save Draft', key=f'{key_prefix}-SAVE-PROMPT-', size=(12, 1)), 
+         sg.Button('Add to History', key=f'{key_prefix}-ADD-HISTORY-', size=(15, 1))],
+        [sg.Button('Send to AI Assistant', key=f'{key_prefix}-USE-PROMPT-', size=(30 if is_sidebar else 40, 1), button_color=('white', colors['accent']))]
     ]
     
     return layout
 
-def handle_events(event, values, window):
-    if event == '-PROMPT-BUILDER-':
+def handle_events(event, values, window, key_prefix=''):
+    if event == f'{key_prefix}-PROMPT-BUILDER-':
         try:
             with open(PROMPT_FILE, "w") as f:
-                f.write(values['-PROMPT-BUILDER-'])
+                f.write(values[f'{key_prefix}-PROMPT-BUILDER-'])
         except:
             pass
 
-    if event == '-TEMPLATE-LIST-':
-        selected = values['-TEMPLATE-LIST-'][0]
+    if event == f'{key_prefix}-TEMPLATE-LIST-':
+        selected = values[f'{key_prefix}-TEMPLATE-LIST-'][0]
         if not selected.startswith("---"):
-            current = values['-PROMPT-BUILDER-']
+            current = values[f'{key_prefix}-PROMPT-BUILDER-']
             new_text = current + ("\n" if current and not current.endswith("\n") else "") + selected + " "
-            window['-PROMPT-BUILDER-'].update(new_text)
-            window.write_event_value('-PROMPT-BUILDER-', new_text)
+            window[f'{key_prefix}-PROMPT-BUILDER-'].update(new_text)
+            window.write_event_value(f'{key_prefix}-PROMPT-BUILDER-', new_text)
 
-    if event == '-SAVE-PROMPT-':
+    if event == f'{key_prefix}-SAVE-PROMPT-':
         try:
             with open(PROMPT_FILE, "w") as f:
-                f.write(values['-PROMPT-BUILDER-'])
+                f.write(values[f'{key_prefix}-PROMPT-BUILDER-'])
             sg.popup_quick_message("Draft Saved!", background_color='#40E0D0', text_color='white')
         except:
             pass
 
-    if event == '-ADD-HISTORY-':
-        prompt_text = values['-PROMPT-BUILDER-']
+    if event == f'{key_prefix}-ADD-HISTORY-':
+        prompt_text = values[f'{key_prefix}-PROMPT-BUILDER-']
         if prompt_text:
             name = sg.popup_get_text("Enter a name for this prompt:", title="Save to History")
             if name:
                 history = load_history()
                 history[name] = prompt_text
                 save_history(history)
-                window['-HISTORY-COMBO-'].update(values=sorted(list(history.keys())), value=name)
+                # Update all instances if possible, but for now just this one
+                window[f'{key_prefix}-HISTORY-COMBO-'].update(values=sorted(list(history.keys())), value=name)
 
-    if event == '-LOAD-HISTORY-':
-        name = values['-HISTORY-COMBO-']
+    if event == f'{key_prefix}-LOAD-HISTORY-':
+        name = values[f'{key_prefix}-HISTORY-COMBO-']
         if name:
             history = load_history()
             if name in history:
-                window['-PROMPT-BUILDER-'].update(history[name])
-                window.write_event_value('-PROMPT-BUILDER-', history[name])
+                window[f'{key_prefix}-PROMPT-BUILDER-'].update(history[name])
+                window.write_event_value(f'{key_prefix}-PROMPT-BUILDER-', history[name])
 
-    if event == '-DELETE-HISTORY-':
-        name = values['-HISTORY-COMBO-']
+    if event == f'{key_prefix}-DELETE-HISTORY-':
+        name = values[f'{key_prefix}-HISTORY-COMBO-']
         if name:
             if sg.popup_yes_no(f"Delete '{name}'?") == 'Yes':
                 history = load_history()
                 if name in history:
                     del history[name]
                     save_history(history)
-                    window['-HISTORY-COMBO-'].update(values=sorted(list(history.keys())), value='')
+                    window[f'{key_prefix}-HISTORY-COMBO-'].update(values=sorted(list(history.keys())), value='')
 
-    if event == '-USE-PROMPT-':
-        builder_text = values['-PROMPT-BUILDER-']
+    if event == f'{key_prefix}-USE-PROMPT-':
+        builder_text = values[f'{key_prefix}-PROMPT-BUILDER-']
         if builder_text:
-            # This will be handled by the main app to switch to AI tab
             return True
     return False

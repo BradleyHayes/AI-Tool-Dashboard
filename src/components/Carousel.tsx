@@ -8,7 +8,8 @@ import {
   Layers,
   Code2,
   Microscope,
-  ExternalLink
+  ExternalLink,
+  FileText
 } from 'lucide-react';
 import { ModuleId } from '../types';
 
@@ -24,6 +25,14 @@ const modules = [
     icon: Cpu,
     color: 'from-primary to-primary/80',
     tooltip: 'Advanced AI chat and coding assistant'
+  },
+  {
+    id: 'ai-prompt-assist' as ModuleId,
+    title: 'AI Prompt Assist',
+    description: 'Build & Manage Prompts',
+    icon: FileText,
+    color: 'from-primary to-accent',
+    tooltip: 'Create, save, and manage your AI prompts'
   },
   {
     id: 'task-organizer' as ModuleId,

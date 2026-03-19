@@ -23,4 +23,4 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export type ModuleId = 'dashboard' | 'ai-assistant' | 'task-organizer' | 'code-cleaner' | 'research-viz' | 'project-hub';
+export type ModuleId = 'dashboard' | 'ai-assistant' | 'task-organizer' | 'code-cleaner' | 'research-viz' | 'project-hub' | 'ai-prompt-assist';
